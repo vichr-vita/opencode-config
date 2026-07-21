@@ -1,0 +1,13 @@
+# Installed and generated dependencies
+node_modules/
+.opencode/
+
+# Machine-local state
+.caveman-active
+.DS_Store
+
+# Backups and local secrets
+*.bak
+*.env
+.env.*
+!.env.example

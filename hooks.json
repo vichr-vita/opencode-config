@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "hooks": {
+    "session.created": [
+      {
+        "type": "command",
+        "script": "npx -y -p @a5c-ai/hooks-adapter-cli -c \"a5c-hooks-adapter invoke --adapter opencode --handler 'node ./plugins/babysitter/hooks/babysitter-proxied-session-created.js' --json\"",
+        "description": "babysitter SessionStart hook",
+        "timeoutMs": 30000
+      }
+    ],
+    "tool.execute.before": [
+      {
+        "type": "command",
+        "script": "npx -y -p @a5c-ai/hooks-adapter-cli -c \"a5c-hooks-adapter invoke --adapter opencode --handler 'node ./plugins/babysitter/hooks/babysitter-proxied-tool-execute-before.js' --json\"",
+        "description": "babysitter PreToolUse hook",
+        "timeoutMs": 30000
+      }
+    ],
+    "tool.execute.after": [
+      {
+        "type": "command",
+        "script": "npx -y -p @a5c-ai/hooks-adapter-cli -c \"a5c-hooks-adapter invoke --adapter opencode --handler 'node ./plugins/babysitter/hooks/babysitter-proxied-tool-execute-after.js' --json\"",
+        "description": "babysitter PostToolUse hook",
+        "timeoutMs": 30000
+      }
+    ],
+    "shell.env": [
+      {
+        "type": "command",
+        "script": "npx -y -p @a5c-ai/hooks-adapter-cli -c \"a5c-hooks-adapter invoke --adapter opencode --handler 'node ./plugins/babysitter/hooks/babysitter-proxied-shell-env.js' --json\"",
+        "description": "babysitter ShellEnv hook",
+        "timeoutMs": 5000
+      }
+    ]
+  }
+}
