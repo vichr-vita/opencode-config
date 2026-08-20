@@ -1,6 +1,6 @@
 ---
 description: Adversarially reviews plans, code changes, architecture, and observability by trying to falsify their claims and reporting only evidence-backed material findings.
-mode: subagent
+mode: all
 model: openai/gpt-5.6-sol
 options:
   reasoningEffort: high
