@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 dry_run=0
 if [[ "${1:-}" == "--dry-run" ]]; then
   dry_run=1
@@ -57,6 +58,8 @@ if [[ "$dry_run" -eq 1 ]]; then
   [[ "$found" -eq 1 ]] || echo "NOOP    no legacy paths found"
   exit 0
 fi
+
+"$script_dir/verify.sh" --pre-cleanup >/dev/null
 
 if command -v codex >/dev/null && [[ "$codex_home" == "$user_home/.codex" ]]; then
   if codex plugin list 2>/dev/null | grep -q '^babysitter@babysitter .*installed'; then

@@ -30,4 +30,4 @@ External sources use exact Git commits. Locally authored skills remain in this r
 
 ## Legacy cleanup
 
-`./scripts/cleanup-legacy.sh --dry-run` lists the retired Caveman and Babysitter paths. Run it without `--dry-run` only after `./scripts/verify.sh` succeeds. The cleanup script creates its own timestamped archive before removing anything.
+`./scripts/cleanup-legacy.sh --dry-run` lists the retired Caveman and Babysitter paths. The cleanup script runs the replacement-layout gate itself, then creates a timestamped archive before removing anything. Run `./scripts/verify.sh` afterward for the final acceptance check.

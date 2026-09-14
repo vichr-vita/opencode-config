@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,16 @@ import tomllib
 
 
 REPO = Path(__file__).resolve().parents[2]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Verify unified agent configuration.")
+    parser.add_argument(
+        "--pre-cleanup",
+        action="store_true",
+        help="verify the replacement layout without requiring retired files to be absent",
+    )
+    return parser.parse_args()
 
 
 def check(condition: bool, message: str) -> None:
@@ -50,6 +61,7 @@ def render(template: Path, prompt: Path) -> str:
 
 
 def main() -> int:
+    args = parse_args()
     lock = json.loads((REPO / "skills/sources.lock.json").read_text())
     check(lock.get("version") == 1, "external source lock schema")
     external_names: set[str] = set()
@@ -97,8 +109,9 @@ def main() -> int:
     check(codex_home.joinpath("agents/adversarial-reviewer.toml").exists(), "Codex reviewer is installed")
     check(opencode_home.joinpath("agents/adversarial-reviewer.md").exists(), "OpenCode reviewer is installed")
     check(opencode_home.joinpath("agents/computer-use.md").exists(), "OpenCode computer-use agent is installed")
-    check(not codex_home.joinpath("agents/implementer.toml").exists(), "retired Codex implementer is absent")
-    check(not codex_home.joinpath("agents/qa.toml").exists(), "retired Codex QA agent is absent")
+    if not args.pre_cleanup:
+        check(not codex_home.joinpath("agents/implementer.toml").exists(), "retired Codex implementer is absent")
+        check(not codex_home.joinpath("agents/qa.toml").exists(), "retired Codex QA agent is absent")
     installed_ids: set[str] = set()
     for source in lock["sources"]:
         if source["name"] not in state.get("exclusions", []):
@@ -115,14 +128,15 @@ def main() -> int:
             check(values["name"] not in installed_ids, f"unique installed skill ID {values['name']}")
             installed_ids.add(values["name"])
 
-    forbidden_roots = [
-        opencode_home / "commands",
-        opencode_home / "plugins",
-        opencode_home / "skills",
-        shared_home / "plugins/babysitter",
-    ]
-    leftovers = [str(path) for root in forbidden_roots if root.exists() for path in root.rglob("*") if re.search(r"babysitter|caveman", path.name, re.I)]
-    check(not leftovers, "retired OpenCode and local plugin registrations are absent")
+    if not args.pre_cleanup:
+        forbidden_roots = [
+            opencode_home / "commands",
+            opencode_home / "plugins",
+            opencode_home / "skills",
+            shared_home / "plugins/babysitter",
+        ]
+        leftovers = [str(path) for root in forbidden_roots if root.exists() for path in root.rglob("*") if re.search(r"babysitter|caveman", path.name, re.I)]
+        check(not leftovers, "retired OpenCode and local plugin registrations are absent")
     print(f"PASS    live state has {len(state['targets'])} managed target(s)")
     return 0
 
