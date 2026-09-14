@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 from dataclasses import dataclass
@@ -295,4 +296,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (RuntimeError, OSError, subprocess.CalledProcessError) as error:
+        print(f"ERROR   {error}", file=sys.stderr)
+        raise SystemExit(1)
