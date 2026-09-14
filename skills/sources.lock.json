@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "name": "unslop",
+      "category": "writing",
+      "url": "https://github.com/cursor/plugins.git",
+      "commit": "5bf2b1544db739998121a306340631963c2ff3de",
+      "path": "pstack/skills/unslop"
+    },
+    {
+      "name": "research",
+      "category": "research",
+      "url": "https://github.com/mattpocock/skills.git",
+      "commit": "391a2701dd948f94f56a39f7533f8eea9a859c87",
+      "path": "skills/engineering/research"
+    },
+    {
+      "name": "tdd",
+      "category": "engineering",
+      "url": "https://github.com/mattpocock/skills.git",
+      "commit": "391a2701dd948f94f56a39f7533f8eea9a859c87",
+      "path": "skills/engineering/tdd"
+    },
+    {
+      "name": "composition-patterns",
+      "category": "engineering",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/composition-patterns"
+    },
+    {
+      "name": "react-best-practices",
+      "category": "engineering",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/react-best-practices"
+    },
+    {
+      "name": "react-native-skills",
+      "category": "engineering",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/react-native-skills"
+    },
+    {
+      "name": "react-view-transitions",
+      "category": "engineering",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/react-view-transitions"
+    },
+    {
+      "name": "web-design-guidelines",
+      "category": "other",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/web-design-guidelines"
+    },
+    {
+      "name": "writing-guidelines",
+      "category": "writing",
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "path": "skills/writing-guidelines"
+    },
+    {
+      "name": "rust-skills",
+      "category": "engineering",
+      "url": "https://github.com/leonardomso/rust-skills.git",
+      "commit": "fd2a861ab0406a4ac536a55274d14ea6fd1ca9c9",
+      "path": "."
+    }
+  ]
+}
+

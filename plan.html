@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Unified agent configuration migration plan</title>
+  <style>
+    :root {
+      --ink: #102833;
+      --muted: #60747d;
+      --paper: #f3f7f8;
+      --panel: #ffffff;
+      --line: #bfd0d5;
+      --shared: #087e7f;
+      --shared-soft: #d9eeee;
+      --codex: #dc684f;
+      --codex-soft: #fae6e1;
+      --opencode: #275fa5;
+      --opencode-soft: #e2ebf7;
+      --warning: #b66b17;
+      --warning-soft: #f7ead5;
+      --removed: #72566f;
+      --removed-soft: #eee7ed;
+      --shadow: 0 20px 60px rgba(16, 40, 51, 0.09);
+      --radius: 18px;
+      --display: "Avenir Next", "Segoe UI", sans-serif;
+      --body: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(16, 40, 51, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 40, 51, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font: 18px/1.62 var(--body);
+    }
+
+    a { color: inherit; }
+
+    code, pre, .eyebrow, .tag, .phase-index, .status, nav {
+      font-family: var(--mono);
+    }
+
+    code {
+      padding: 0.14em 0.34em;
+      border-radius: 5px;
+      background: #e8eef0;
+      font-size: 0.84em;
+    }
+
+    .shell {
+      width: min(1220px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 96px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font: 12px/1.4 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--ink);
+      font-size: 11px;
+    }
+
+    .status::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
+      content: "";
+      box-shadow: 0 0 0 4px var(--warning-soft);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(34px, 6vw, 76px);
+      border: 1px solid #aac0c7;
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      position: absolute;
+      right: -100px;
+      bottom: -130px;
+      width: 390px;
+      height: 390px;
+      border: 70px solid var(--shared-soft);
+      border-radius: 50%;
+      content: "";
+      opacity: 0.68;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--shared);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--display);
+      color: var(--ink);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 830px;
+      margin: 0;
+      font-size: clamp(45px, 7.4vw, 94px);
+      font-weight: 650;
+      letter-spacing: -0.052em;
+      line-height: 0.96;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 690px;
+      margin: 30px 0 0;
+      color: #37515b;
+      font-size: clamp(19px, 2vw, 25px);
+      line-height: 1.45;
+    }
+
+    .hero-meta {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: var(--shared-soft);
+      color: #075e5f;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 42px;
+      margin-top: 46px;
+    }
+
+    nav {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    nav strong {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    nav a {
+      display: block;
+      padding: 7px 8px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav a:hover, nav a:focus-visible {
+      background: var(--shared-soft);
+      outline: none;
+    }
+
+    main { min-width: 0; }
+
+    section {
+      scroll-margin-top: 24px;
+      margin-bottom: 64px;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 62px 1fr;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 24px;
+    }
+
+    .section-no {
+      padding-top: 7px;
+      border-top: 3px solid var(--shared);
+      color: var(--shared);
+      font: 700 12px/1 var(--mono);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 650;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+    }
+
+    .section-intro {
+      max-width: 780px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .routing-board {
+      display: grid;
+      grid-template-columns: 1fr 82px 1fr;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .route-card {
+      position: relative;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .route-card.shared {
+      grid-column: 1 / -1;
+      margin-bottom: 40px;
+      border-top: 5px solid var(--shared);
+    }
+
+    .route-card.codex { border-top: 5px solid var(--codex); }
+    .route-card.opencode { border-top: 5px solid var(--opencode); }
+
+    .route-card h3 {
+      margin: 0 0 8px;
+      font-size: 23px;
+      letter-spacing: -0.02em;
+    }
+
+    .route-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .route-card ul { margin-bottom: 0; }
+
+    .route-lines {
+      grid-column: 1 / -1;
+      position: relative;
+      height: 0;
+      top: -40px;
+    }
+
+    .route-lines::before,
+    .route-lines::after {
+      position: absolute;
+      top: 0;
+      width: calc(25% + 1px);
+      height: 40px;
+      border-bottom: 2px solid var(--shared);
+      content: "";
+    }
+
+    .route-lines::before {
+      left: 25%;
+      border-left: 2px solid var(--shared);
+    }
+
+    .route-lines::after {
+      right: 25%;
+      border-right: 2px solid var(--shared);
+    }
+
+    .route-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--shared);
+      font: 22px/1 var(--mono);
+    }
+
+    .file-tree {
+      overflow-x: auto;
+      margin: 0;
+      padding: 26px 28px;
+      border: 1px solid #294752;
+      border-radius: var(--radius);
+      background: #102b35;
+      color: #dcebee;
+      font: 14px/1.7 var(--mono);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .tree-shared { color: #7fd7d1; }
+    .tree-codex { color: #ff9e8b; }
+    .tree-opencode { color: #91baf0; }
+    .tree-note { color: #91a8af; }
+
+    .decision-grid,
+    .acceptance-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .decision,
+    .acceptance {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .decision h3,
+    .acceptance h3 {
+      margin: 0 0 7px;
+      font-size: 18px;
+    }
+
+    .decision p,
+    .acceptance p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .phases {
+      position: relative;
+      display: grid;
+      gap: 16px;
+    }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 20px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .phase-index {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--shared-soft);
+      color: var(--shared);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .phase h3 {
+      margin: 2px 0 10px;
+      font-size: 22px;
+    }
+
+    .phase p { margin: 0 0 12px; color: var(--muted); }
+    .phase ul { margin: 0; padding-left: 22px; }
+
+    .gate {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 6px 9px;
+      border-radius: 5px;
+      background: #e8eef0;
+      color: #435b65;
+      font: 700 10px/1.4 var(--mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .matrix-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+
+    th, td {
+      padding: 15px 18px;
+      border-bottom: 1px solid #d8e2e5;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #e8f0f2;
+      font: 700 11px/1.4 var(--mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font: 700 10px/1.2 var(--mono);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pill.shared { color: #075e5f; background: var(--shared-soft); }
+    .pill.codex { color: #9c3d2b; background: var(--codex-soft); }
+    .pill.opencode { color: #204f89; background: var(--opencode-soft); }
+    .pill.remove { color: #61455e; background: var(--removed-soft); }
+
+    .command-card {
+      padding: 26px;
+      border-radius: var(--radius);
+      background: #102b35;
+      color: #dcebee;
+    }
+
+    .command-card h3 {
+      margin: 0 0 14px;
+      color: white;
+      font-size: 20px;
+    }
+
+    .command-card pre {
+      overflow-x: auto;
+      margin: 0;
+      color: #8ee0da;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 20px 22px;
+      border-left: 5px solid var(--warning);
+      border-radius: 0 12px 12px 0;
+      background: var(--warning-soft);
+    }
+
+    .callout p { margin: 0; }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .checklist li::before {
+      display: grid;
+      width: 19px;
+      height: 19px;
+      place-items: center;
+      border: 1.5px solid var(--shared);
+      border-radius: 50%;
+      color: var(--shared);
+      content: "✓";
+      font: 700 11px/1 var(--mono);
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    details + details { margin-top: 10px; }
+
+    summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      font-family: var(--display);
+      font-weight: 650;
+    }
+
+    details > div {
+      padding: 0 18px 18px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    footer {
+      margin-top: 76px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    @media (max-width: 820px) {
+      .shell { width: min(100% - 24px, 720px); padding-top: 18px; }
+      .topbar { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .layout { grid-template-columns: 1fr; gap: 26px; }
+      nav { position: static; display: flex; overflow-x: auto; gap: 4px; }
+      nav strong { display: none; }
+      nav a { flex: 0 0 auto; }
+      .routing-board { grid-template-columns: 1fr; gap: 14px; }
+      .route-card.shared, .route-lines, .route-arrow { grid-column: 1; }
+      .route-lines, .route-arrow { display: none; }
+      .route-card.shared { margin-bottom: 0; }
+      .decision-grid, .acceptance-grid { grid-template-columns: 1fr; }
+      .phase { grid-template-columns: 44px 1fr; gap: 12px; padding: 18px; }
+      .phase-index { width: 38px; height: 38px; }
+      .section-head { grid-template-columns: 46px 1fr; gap: 12px; }
+    }
+
+    @media print {
+      body { background: white; font-size: 12pt; }
+      .shell { width: 100%; padding: 0; }
+      .hero { box-shadow: none; break-after: page; }
+      .layout { display: block; }
+      nav { display: none; }
+      section, .phase, .decision, .acceptance, details { break-inside: avoid; }
+      details > div { display: block; }
+      .route-card, .matrix-wrap { box-shadow: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <span>agents-config / migration plan / 2026-09-14</span>
+      <span class="status">Ready for review</span>
+    </div>
+
+    <header class="hero">
+      <p class="eyebrow">One source, two harnesses</p>
+      <h1>Route shared agent behavior from one repository.</h1>
+      <p class="hero-copy">
+        Consolidate global prompts, reusable skills, and shared agent bodies while keeping Codex and OpenCode adapters small. Remove the abandoned plugin systems and leave runtime state alone.
+      </p>
+      <div class="hero-meta">
+        <span class="tag">Plan only</span>
+        <span class="tag">History preserved</span>
+        <span class="tag">Reversible migration</span>
+        <span class="tag">No remote changes</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="Plan sections">
+        <strong>Review route</strong>
+        <a href="#outcome">Outcome</a>
+        <a href="#structure">Structure</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#migration">Migration</a>
+        <a href="#inventory">Inventory</a>
+        <a href="#installer">Installer</a>
+        <a href="#verification">Verification</a>
+        <a href="#rollback">Rollback</a>
+        <a href="#approval">Approval</a>
+      </nav>
+
+      <main>
+        <section id="outcome">
+          <div class="section-head">
+            <span class="section-no">01</span>
+            <div>
+              <h2>Target outcome</h2>
+              <p class="section-intro">The repository owns authored behavior. Each harness receives only the files it understands.</p>
+            </div>
+          </div>
+
+          <div class="routing-board" aria-label="Configuration routing diagram">
+            <article class="route-card shared">
+              <h3>Shared source</h3>
+              <p><code>AGENTS.md</code>, categorized skills, locked external skills, and common agent prompt bodies live here.</p>
+              <ul>
+                <li>One editable copy of every owned instruction.</li>
+                <li>One pinned revision for every external skill.</li>
+                <li>No credentials, sessions, caches, or application state.</li>
+              </ul>
+            </article>
+            <div class="route-lines" aria-hidden="true"></div>
+            <article class="route-card codex">
+              <h3>Codex adapter</h3>
+              <p>Links the global prompt, exposes shared skills, and generates the custom reviewer definition.</p>
+            </article>
+            <div class="route-arrow" aria-hidden="true">↔</div>
+            <article class="route-card opencode">
+              <h3>OpenCode adapter</h3>
+              <p>Links the global prompt, installs the OpenCode model config, and generates its agent definitions.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="structure">
+          <div class="section-head">
+            <span class="section-no">02</span>
+            <div>
+              <h2>Repository structure</h2>
+              <p class="section-intro">Categories help humans browse the source. Installed skill names remain flat and globally unique.</p>
+            </div>
+          </div>
+
+          <pre class="file-tree"><span class="tree-shared">AGENTS.md</span>
+README.md
+.gitignore
+agents/
+  adversarial-reviewer.md             <span class="tree-note"># common prompt body</span>
+skills/
+  sources.lock.json                   <span class="tree-note"># external URL, path, commit</span>
+  engineering/
+  writing/
+  research/
+  workflow/
+  personal/
+    home-tailscale-network/
+      SKILL.md
+  other/
+<span class="tree-codex">harnesses/codex/</span>
+  agents/
+    adversarial-reviewer.toml.tmpl
+  skills/                              <span class="tree-note"># Codex-only skills, when needed</span>
+<span class="tree-opencode">harnesses/opencode/</span>
+  opencode.jsonc
+  agents/
+    adversarial-reviewer.md.tmpl
+    computer-use.md
+  skills/                              <span class="tree-note"># OpenCode-only skills, when needed</span>
+scripts/
+  install.sh
+  lib/                                 <span class="tree-note"># fetching, linking, backup, rendering</span>
+  verify.sh
+plan.html</pre>
+        </section>
+
+        <section id="decisions">
+          <div class="section-head">
+            <span class="section-no">03</span>
+            <div>
+              <h2>Settled design decisions</h2>
+              <p class="section-intro">These are constraints for implementation, not open questions.</p>
+            </div>
+          </div>
+
+          <div class="decision-grid">
+            <article class="decision">
+              <h3>Common instructions stay small</h3>
+              <p>Use natural, complete prose and apply <code>unslop</code> to human-facing writing. Host data and commit policy stay out.</p>
+            </article>
+            <article class="decision">
+              <h3>Shared skills use one loading path</h3>
+              <p>Expose shared skills at <code>~/.agents/skills/&lt;name&gt;</code>, which both harnesses support.</p>
+            </article>
+            <article class="decision">
+              <h3>Categories do not change IDs</h3>
+              <p>A skill stored at <code>skills/workflow/grill-me</code> installs as <code>grill-me</code>.</p>
+            </article>
+            <article class="decision">
+              <h3>Private network knowledge is optional</h3>
+              <p><code>home-tailscale-network</code> contains the private SSH mapping and can be excluded during installation.</p>
+            </article>
+            <article class="decision">
+              <h3>External sources are immutable</h3>
+              <p>The lock file records exact Git commits. <code>unslop</code> starts at <code>5bf2b1544db7</code> from <code>cursor/plugins</code>.</p>
+            </article>
+            <article class="decision">
+              <h3>Runtime state remains local</h3>
+              <p>Codex <code>config.toml</code>, credentials, caches, databases, UI settings, and trusted hashes remain unmanaged.</p>
+            </article>
+            <article class="decision">
+              <h3>OpenCode config remains explicit</h3>
+              <p>Track its current model choices, medium reasoning effort, and global allow permission.</p>
+            </article>
+            <article class="decision">
+              <h3>Remote operations stay out</h3>
+              <p>Preserve existing Git history and remote metadata locally. Do not rename a repository or push changes.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="migration">
+          <div class="section-head">
+            <span class="section-no">04</span>
+            <div>
+              <h2>Migration sequence</h2>
+              <p class="section-intro">Every phase ends with a gate. A failed gate stops the migration before live files are removed.</p>
+            </div>
+          </div>
+
+          <div class="phases">
+            <article class="phase">
+              <span class="phase-index">0</span>
+              <div>
+                <h3>Capture and back up</h3>
+                <p>Record the current file inventory, links, Git status, plugin registrations, and skill discovery results.</p>
+                <ul>
+                  <li>Create a timestamped backup outside the repository.</li>
+                  <li>Include user-authored Codex files and the complete OpenCode working tree.</li>
+                  <li>Exclude credentials, sessions, caches, databases, and dependency directories.</li>
+                </ul>
+                <span class="gate">Gate: backup readable and inventory complete</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">1</span>
+              <div>
+                <h3>Carry Git history forward</h3>
+                <p>Copy the existing OpenCode Git metadata into this repository without changing the live source yet.</p>
+                <ul>
+                  <li>Preserve branches, tags, and the current remote.</li>
+                  <li>Bring the untracked live <code>opencode.jsonc</code> and <code>unslop</code> content into the migration inventory.</li>
+                  <li>Keep <code>plan.html</code> as the review record.</li>
+                </ul>
+                <span class="gate">Gate: history visible and live config untouched</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">2</span>
+              <div>
+                <h3>Build the shared source</h3>
+                <p>Create the minimal global prompt, categorized owned skills, external lock file, and common reviewer prompt.</p>
+                <ul>
+                  <li>Use only the requested trigger sentence in <code>grill-me</code> frontmatter.</li>
+                  <li>Add <code>home-tailscale-network</code> as an optional personal skill.</li>
+                  <li>Audit each existing skill for provenance before deciding whether to lock or retain it locally.</li>
+                  <li>If provenance cannot be established, preserve the skill as a local snapshot and mark its origin unknown.</li>
+                </ul>
+                <span class="gate">Gate: unique IDs and valid SKILL.md frontmatter</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">3</span>
+              <div>
+                <h3>Build thin harness adapters</h3>
+                <p>Add only files whose syntax or behavior belongs to one harness.</p>
+                <ul>
+                  <li>Codex gets an adversarial-reviewer TOML template.</li>
+                  <li>OpenCode gets <code>opencode.jsonc</code>, a reviewer template, and its Linux computer-use agent.</li>
+                  <li>Do not recreate the Codex <code>implementer</code> or <code>qa</code> definitions.</li>
+                </ul>
+                <span class="gate">Gate: rendered wrappers parse in both formats</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">4</span>
+              <div>
+                <h3>Implement the installer</h3>
+                <p>Make installation idempotent, inspectable, and safe around files it does not own.</p>
+                <ul>
+                  <li>Support link mode, copy mode, force, exclusions, and dry runs.</li>
+                  <li>Fetch external skills at locked commits into an ignored cache.</li>
+                  <li>Track installed targets and content hashes in machine-local state.</li>
+                  <li>Back up unmanaged collisions before replacing them.</li>
+                </ul>
+                <span class="gate">Gate: second dry run reports no changes</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">5</span>
+              <div>
+                <h3>Install beside the old layout</h3>
+                <p>Populate the common skill path and generate harness wrappers before deleting superseded files.</p>
+                <ul>
+                  <li>Link the common <code>AGENTS.md</code> into each harness home.</li>
+                  <li>Expose shared skills through <code>~/.agents/skills</code>.</li>
+                  <li>Install harness files individually so runtime directories remain untouched.</li>
+                </ul>
+                <span class="gate">Gate: static discovery and parsing pass</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">6</span>
+              <div>
+                <h3>Remove abandoned systems</h3>
+                <p>Delete the explicitly rejected material only after its replacements load.</p>
+                <ul>
+                  <li>Remove every caveman command, skill, plugin, marker, and prompt fragment.</li>
+                  <li>Remove every Babysitter command, skill, plugin, hook, marketplace entry, and dependency.</li>
+                  <li>Use <code>codex plugin remove</code> and marketplace removal for the installed Codex copy, then verify no active registration remains.</li>
+                  <li>Remove superseded duplicate skills and the unwanted Codex agent files.</li>
+                </ul>
+                <span class="gate">Gate: forbidden-name scan returns empty</span>
+              </div>
+            </article>
+
+            <article class="phase">
+              <span class="phase-index">7</span>
+              <div>
+                <h3>Verify fresh sessions</h3>
+                <p>Restart both harnesses and verify actual discovery rather than inferring success from paths.</p>
+                <ul>
+                  <li>Run one noninteractive Codex prompt and one OpenCode prompt.</li>
+                  <li>Confirm the common instructions, shared skills, exclusions, and custom agents.</li>
+                  <li>Run the installer again and require a no-change result.</li>
+                </ul>
+                <span class="gate">Gate: all acceptance checks pass</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="inventory">
+          <div class="section-head">
+            <span class="section-no">05</span>
+            <div>
+              <h2>Disposition of current material</h2>
+              <p class="section-intro">The implementation inventory must account for each authored item. Broad runtime directories are never migration targets.</p>
+            </div>
+          </div>
+
+          <div class="matrix-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Current material</th>
+                  <th>Disposition</th>
+                  <th>Destination or action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Codex and OpenCode <code>AGENTS.md</code></td>
+                  <td><span class="pill shared">Unify</span></td>
+                  <td>Replace with one minimal root prompt and two installed links.</td>
+                </tr>
+                <tr>
+                  <td>Skills present in both homes</td>
+                  <td><span class="pill shared">Deduplicate</span></td>
+                  <td>Classify by ownership, categorize, and expose once through <code>~/.agents/skills</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>rust-skills</code>, <code>prototype</code>, <code>handoff</code>, <code>teach</code></td>
+                  <td><span class="pill shared">Promote</span></td>
+                  <td>Move into the shared skill catalog after frontmatter and provenance checks.</td>
+                </tr>
+                <tr>
+                  <td><code>grill-me</code></td>
+                  <td><span class="pill shared">Normalize</span></td>
+                  <td>Keep the body. Frontmatter description contains only the approved trigger sentence.</td>
+                </tr>
+                <tr>
+                  <td><code>unslop</code></td>
+                  <td><span class="pill shared">Pin upstream</span></td>
+                  <td>Fetch exact content from <code>cursor/plugins</code> at the locked commit.</td>
+                </tr>
+                <tr>
+                  <td>Adversarial reviewer</td>
+                  <td><span class="pill shared">Share body</span></td>
+                  <td>One prompt body plus generated Codex and OpenCode wrappers.</td>
+                </tr>
+                <tr>
+                  <td>Codex <code>implementer.toml</code> and <code>qa.toml</code></td>
+                  <td><span class="pill remove">Remove</span></td>
+                  <td>Back up, then delete from the live custom-agent directory.</td>
+                </tr>
+                <tr>
+                  <td>OpenCode computer-use agent</td>
+                  <td><span class="pill opencode">Retain</span></td>
+                  <td>Store under <code>harnesses/opencode/agents</code>.</td>
+                </tr>
+                <tr>
+                  <td>OpenCode model and permission config</td>
+                  <td><span class="pill opencode">Retain</span></td>
+                  <td>Track as harness-specific <code>opencode.jsonc</code>.</td>
+                </tr>
+                <tr>
+                  <td>All caveman material</td>
+                  <td><span class="pill remove">Remove</span></td>
+                  <td>Delete commands, skills, plugin code, state marker, and prompt text.</td>
+                </tr>
+                <tr>
+                  <td>All Babysitter material</td>
+                  <td><span class="pill remove">Remove</span></td>
+                  <td>Delete OpenCode integration and uninstall the active Codex plugin and marketplace.</td>
+                </tr>
+                <tr>
+                  <td>OpenCode Node manifests and lockfiles</td>
+                  <td><span class="pill remove">Remove</span></td>
+                  <td>Delete after plugin removal leaves no Node dependency.</td>
+                </tr>
+                <tr>
+                  <td>Codex <code>config.toml</code> and application state</td>
+                  <td><span class="pill codex">Leave local</span></td>
+                  <td>Only perform the one-time targeted plugin removal. Do not place the file under repository control.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="installer">
+          <div class="section-head">
+            <span class="section-no">06</span>
+            <div>
+              <h2>Installer contract</h2>
+              <p class="section-intro">The same script supports linked and copied installations through one predictable interface.</p>
+            </div>
+          </div>
+
+          <div class="command-card">
+            <h3>Supported interface</h3>
+            <pre>./scripts/install.sh --link [--exclude SKILL] [--dry-run]
+./scripts/install.sh --copy [--force] [--exclude SKILL] [--dry-run]
+./scripts/verify.sh</pre>
+          </div>
+
+          <div class="decision-grid" style="margin-top: 16px">
+            <article class="decision">
+              <h3>Link mode</h3>
+              <p>Use on machines where this repository is the editable source. Links point to owned files or locked cache entries.</p>
+            </article>
+            <article class="decision">
+              <h3>Copy mode</h3>
+              <p>Materialize regular files. With <code>--force</code>, replace previously managed targets and back up unmanaged collisions.</p>
+            </article>
+            <article class="decision">
+              <h3>Exclusions</h3>
+              <p>Repeatable <code>--exclude</code> values omit skills and remove previously managed copies from the target installation.</p>
+            </article>
+            <article class="decision">
+              <h3>Local state</h3>
+              <p>Record source revision, mode, target path, and hash outside the repository. Never record host identity in committed files.</p>
+            </article>
+          </div>
+
+          <div class="callout">
+            <p><strong>Collision rule.</strong> The installer may replace a path only when its state file proves ownership or the user passed <code>--force</code>. Before a forced replacement, it copies the old path into the timestamped migration backup.</p>
+          </div>
+        </section>
+
+        <section id="verification">
+          <div class="section-head">
+            <span class="section-no">07</span>
+            <div>
+              <h2>Acceptance checks</h2>
+              <p class="section-intro">Completion requires evidence from files, parsers, and fresh harness sessions.</p>
+            </div>
+          </div>
+
+          <div class="acceptance-grid">
+            <article class="acceptance">
+              <h3>Repository integrity</h3>
+              <p>Existing OpenCode history and remote metadata remain intact. No credential or runtime-state file is tracked.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Skill integrity</h3>
+              <p>Every installed skill has valid frontmatter, a unique ID, a category, and either owned source or a locked origin.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Prompt integrity</h3>
+              <p>Both global prompt paths resolve to identical content. It contains no caveman rules, commit policy, host mapping, or absolute skill path.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Harness discovery</h3>
+              <p>Fresh Codex and OpenCode runs report the common instructions and the same shared skill set.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Adapter discovery</h3>
+              <p>Both harnesses expose the adversarial reviewer. Only OpenCode exposes its computer-use agent. The removed Codex agents are absent.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Removal proof</h3>
+              <p>A case-insensitive scan of managed sources and live targets finds no caveman or Babysitter registration.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Exclusion proof</h3>
+              <p>A dry-run fixture with <code>--exclude home-tailscale-network</code> omits that skill without changing the rest of the installation.</p>
+            </article>
+            <article class="acceptance">
+              <h3>Idempotence</h3>
+              <p>A second install with identical options exits successfully and reports no filesystem changes.</p>
+            </article>
+          </div>
+
+          <h3 style="margin-top: 28px">Required evidence</h3>
+          <ul class="checklist">
+            <li>Backup path and inventory summary.</li>
+            <li>Before-and-after tree limited to managed paths.</li>
+            <li>External skill lock revisions and successful fetch checks.</li>
+            <li>Static parser output for JSONC, TOML, shell, and skill frontmatter.</li>
+            <li>Fresh Codex and OpenCode discovery transcripts with sensitive values omitted.</li>
+            <li>Final no-change installer run.</li>
+          </ul>
+        </section>
+
+        <section id="rollback">
+          <div class="section-head">
+            <span class="section-no">08</span>
+            <div>
+              <h2>Rollback and failure handling</h2>
+              <p class="section-intro">The migration can stop after any phase without leaving half-owned paths.</p>
+            </div>
+          </div>
+
+          <details open>
+            <summary>If external fetching fails</summary>
+            <div>Leave the live skill directories in place. Report the failing repository and revision. Do not substitute an unpinned branch tip.</div>
+          </details>
+          <details>
+            <summary>If a harness rejects generated configuration</summary>
+            <div>Restore that harness’s backed-up authored files, leave the repository sources intact for diagnosis, and do not clean up its old skill path.</div>
+          </details>
+          <details>
+            <summary>If fresh-session discovery differs</summary>
+            <div>Compare the harness-reported sources with the install state. Keep both old and new layouts until precedence and duplicate IDs are resolved.</div>
+          </details>
+          <details>
+            <summary>If full rollback is requested</summary>
+            <div>Remove only paths recorded in the installer state, restore the timestamped backup, and return the original OpenCode Git working tree to its former location. The backup is never deleted automatically.</div>
+          </details>
+        </section>
+
+        <section id="approval">
+          <div class="section-head">
+            <span class="section-no">09</span>
+            <div>
+              <h2>Review checkpoint</h2>
+              <p class="section-intro">Implementation begins only after this plan is accepted or amended.</p>
+            </div>
+          </div>
+
+          <ul class="checklist">
+            <li>The target tree matches the intended split between shared and harness-specific configuration.</li>
+            <li>The removal inventory includes all abandoned material and nothing still needed.</li>
+            <li>The installer modes cover editable and overwrite-based installations.</li>
+            <li>The verification evidence is sufficient to authorize cleanup of the old layout.</li>
+            <li>The repository and documentation do not contain a machine inventory.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      This document is a review artifact. It makes no configuration changes and contains no credentials or machine-local state.
+    </footer>
+  </div>
+</body>
+</html>

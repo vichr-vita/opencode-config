@@ -1,4 +1,4 @@
-# Git Workflow
+# Writing
 
-- Make incremental commits at logical checkpoints while working.
-- Use Conventional Commits for every commit message.
+Use natural, clear prose with complete sentences.
+Apply the `unslop` skill to human-facing writing.
