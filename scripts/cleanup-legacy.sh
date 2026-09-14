@@ -23,6 +23,7 @@ backup_dir="$backup_home/$stamp/legacy-cleanup"
 targets=(
   "$codex_home/agents/implementer.toml"
   "$codex_home/agents/qa.toml"
+  "$codex_home/plugins/cache/babysitter"
   "$opencode_home/.caveman-active"
   "$opencode_home/.opencode"
   "$opencode_home/commands"
@@ -35,6 +36,7 @@ targets=(
   "$opencode_home/plugins"
   "$opencode_home/skills"
   "$shared_home/plugins/babysitter"
+  "$shared_home/plugins/marketplace.json"
 )
 
 found=0
@@ -62,10 +64,10 @@ fi
 "$script_dir/verify.sh" --pre-cleanup >/dev/null
 
 if command -v codex >/dev/null && [[ "$codex_home" == "$user_home/.codex" ]]; then
-  if codex plugin list 2>/dev/null | grep -q '^babysitter@babysitter .*installed'; then
+  if { codex plugin list 2>/dev/null || true; } | grep -q '^babysitter@babysitter .*installed'; then
     codex plugin remove babysitter@babysitter --json
   fi
-  if codex plugin marketplace list 2>/dev/null | grep -q 'Marketplace `babysitter`'; then
+  if codex plugin marketplace list 2>/dev/null | grep -Eq '^babysitter[[:space:]]'; then
     codex plugin marketplace remove babysitter
   fi
 fi

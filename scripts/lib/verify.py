@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -84,6 +85,8 @@ def main() -> int:
     opencode = REPO / "harnesses/opencode/opencode.jsonc"
     json.loads(strip_jsonc(opencode.read_text()))
     check(True, "OpenCode JSONC parses")
+    computer_use = REPO / "harnesses/opencode/agents/computer-use.md"
+    check("disable: true" not in computer_use.read_text(), "OpenCode computer-use agent is enabled")
     prompt = REPO / "agents/adversarial-reviewer.md"
     codex_rendered = render(REPO / "harnesses/codex/agents/adversarial-reviewer.toml.tmpl", prompt)
     opencode_rendered = render(REPO / "harnesses/opencode/agents/adversarial-reviewer.md.tmpl", prompt)
@@ -137,6 +140,23 @@ def main() -> int:
         ]
         leftovers = [str(path) for root in forbidden_roots if root.exists() for path in root.rglob("*") if re.search(r"babysitter|caveman", path.name, re.I)]
         check(not leftovers, "retired OpenCode and local plugin registrations are absent")
+        if shutil.which("codex") and codex_home == user_home / ".codex":
+            marketplace_result = subprocess.run(
+                ["codex", "plugin", "marketplace", "list"],
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            check(not re.search(r"^babysitter\s", marketplace_result.stdout, re.M | re.I), "Babysitter marketplace is absent")
+            plugin_result = subprocess.run(
+                ["codex", "plugin", "list"],
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            check(not re.search(r"^babysitter@babysitter\s+installed", plugin_result.stdout, re.M | re.I), "Babysitter plugin is absent")
     print(f"PASS    live state has {len(state['targets'])} managed target(s)")
     return 0
 

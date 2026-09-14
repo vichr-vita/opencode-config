@@ -2,7 +2,6 @@
 name: computer-use
 description: Observe and control Linux desktop applications through Computer Use Linux MCP. Use for requests requiring screenshots, window inspection, clicking, typing, scrolling, or other desktop interaction.
 mode: subagent
-disable: true
 model: github-copilot/gpt-5.6-terra
 options:
   reasoningEffort: medium
