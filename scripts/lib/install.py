@@ -137,6 +137,16 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def require_writable(path: Path, label: str) -> None:
+    probe = path
+    while not probe.exists():
+        if probe.parent == probe:
+            raise RuntimeError(f"cannot resolve a writable parent for {label}: {path}")
+        probe = probe.parent
+    if not os.access(probe, os.W_OK | os.X_OK):
+        raise RuntimeError(f"{label} is not writable: {probe}")
+
+
 def main() -> int:
     args = parse_args()
     user_home = Path.home()
@@ -146,6 +156,11 @@ def main() -> int:
     state_home = Path(os.environ.get("AGENTS_CONFIG_STATE_HOME", user_home / ".local/state/agents-config")).expanduser()
     backup_home = Path(os.environ.get("AGENTS_CONFIG_BACKUP_HOME", user_home / ".agents-config-backups")).expanduser()
     state_file = state_home / "install-state.json"
+    require_writable(codex_home, "Codex home")
+    require_writable(opencode_home, "OpenCode home")
+    require_writable(shared_home, "shared agent home")
+    require_writable(state_home, "installer state home")
+    require_writable(backup_home, "backup home")
     lock = json.loads((REPO / "skills/sources.lock.json").read_text())
     exclusions = set(args.exclude)
 

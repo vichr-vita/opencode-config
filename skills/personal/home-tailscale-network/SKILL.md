@@ -8,4 +8,3 @@ description: Use the private home Tailscale SSH mapping when the user asks to co
 Connect to `vichrbox` as `vichr@vichrbox`.
 
 Do not copy this host mapping into project files, logs, or public documentation. Keep it in personal agent configuration.
-

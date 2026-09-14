@@ -12,4 +12,3 @@ The migration classified skills by their source before changing either live harn
 | `home-tailscale-network` | Locally authored | Added by this repository as an optional personal skill |
 
 Categories organize this repository only. Installed skill IDs remain flat and come from each skill's directory name.
-

@@ -68,4 +68,3 @@ if command -v codex >/dev/null && [[ "$codex_home" == "$user_home/.codex" ]]; th
 fi
 
 echo "DONE    legacy material moved to $backup_dir"
-
