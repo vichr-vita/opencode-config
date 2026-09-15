@@ -37,6 +37,6 @@ Apply the `unslop` skill to human-facing writing.
 
 - Make sure titles follow conventions from the repo. They should be simple and easy to understand. Conventional commit styles in projects that use them, i.e. "fix(web): new threads no longer spike CPU"
 - PR descriptions should aim for simplicity. Open with a minimal, clear description of the problem. Follow up with how you solved it.
-- Add a blurb to the end of the PR description about what model and harness is making the changes. Use the exact model identifier from the runtime metadata, not a broad model description. Read `user.name` from the repository's local Git config first. If it is unset, use the global Git config. Use the first name from that value in the signature format: `<model> in behalf of <first name from git config> via <harness>`
+- Add a blurb to the end of the PR description about what model and harness is making the changes. Use the exact model identifier from the runtime metadata, not a broad model description. Read `user.name` from the repository's local Git config first. If it is unset, use the global Git config. Use the first name from that value in the signature format: `<model> on behalf of <first name from git config> via <harness>`
 - Open a real PR, not a draft. Drafts do not get review-bot coverage.
 - Rebase onto latest `main` before opening. Stale branches conflict and waste a review round.
