@@ -2,7 +2,19 @@
 
 This repository is the editable source for configuration shared by Codex and OpenCode.
 
-Shared instructions live in `AGENTS.md`. Owned skills live under `skills/` in human-readable categories, while externally maintained skills are pinned in `skills/sources.lock.json`. The installer exposes every shared skill through the flat `~/.agents/skills` directory and writes only the adapter files each harness understands.
+Shared instructions live in `AGENTS.md`. Owned skills live under `skills/` in human-readable categories, while externally maintained skills are pinned in `skills/sources.lock.json`. The installer exposes global skills through the flat `~/.agents/skills` directory and writes only the adapter files each harness understands.
+
+Owned skills are global unless their `SKILL.md` front matter contains a `harnesses` include-list. Harness names are case-insensitive. A restricted skill stays in the regular categorized `skills/` tree and declares its targets like this:
+
+```yaml
+---
+name: example
+description: An example Codex-only skill.
+harnesses: [codex]
+---
+```
+
+Use `[codex]` or `[opencode]` for a restricted skill. `[codex, opencode]` has the same meaning as omitting `harnesses`. The installer puts global skills in `~/.agents/skills`, Codex-only skills in `~/.codex/skills`, and OpenCode-only skills in `~/.config/opencode/skills`.
 
 ## Install
 

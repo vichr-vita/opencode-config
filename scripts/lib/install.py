@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from io import BytesIO
 
+from skill_metadata import skill_harnesses, skill_install_root
+
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -212,7 +214,13 @@ def main() -> int:
 
     for name, source in owned.items():
         if name not in exclusions:
-            artifacts.append(Artifact(shared_home / "skills" / name, source, f"owned-skill:{name}", revision))
+            install_root = skill_install_root(
+                skill_harnesses(source / "SKILL.md"),
+                codex_home=codex_home,
+                opencode_home=opencode_home,
+                shared_home=shared_home,
+            )
+            artifacts.append(Artifact(install_root / name, source, f"owned-skill:{name}", revision))
     for name, source in externals.items():
         if name in exclusions:
             continue
@@ -298,6 +306,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (RuntimeError, OSError, subprocess.CalledProcessError) as error:
+    except (RuntimeError, ValueError, OSError, subprocess.CalledProcessError) as error:
         print(f"ERROR   {error}", file=sys.stderr)
         raise SystemExit(1)

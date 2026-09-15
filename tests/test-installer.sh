@@ -23,5 +23,6 @@ grep -q 'DRY RUN 0 filesystem change(s)' <<<"$second"
 excluded="$($repo_dir/scripts/install.sh --copy --exclude home-tailscale-network --dry-run)"
 grep -q "REMOVE  $AGENTS_CONFIG_SHARED_HOME/skills/home-tailscale-network" <<<"$excluded"
 find "$AGENTS_CONFIG_BACKUP_HOME" -path '*/unmanaged-collisions/*/AGENTS.md' -type f | grep -q .
+python3 "$repo_dir/tests/test-skill-metadata.py"
 "$repo_dir/scripts/verify.sh" >/dev/null
 echo "PASS    installer collision, idempotence, and exclusion checks"

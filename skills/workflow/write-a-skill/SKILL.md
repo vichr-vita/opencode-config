@@ -57,6 +57,8 @@ description: Brief description of capability. Use when [specific triggers].
 [Link to separate files: See [REFERENCE.md](REFERENCE.md)]
 ```
 
+For skills authored in this agent configuration repository, omit `harnesses` to install the skill globally. Add `harnesses: [codex]` or `harnesses: [opencode]` only when the skill must be restricted. An include-list containing both has the same effect as omitting the key.
+
 ## Description Requirements
 
 The description is **the only thing your agent sees** when deciding which skill to load. It's surfaced in the system prompt alongside all other installed skills. Your agent reads these descriptions and picks the relevant skill based on the user's request.
@@ -110,6 +112,7 @@ Split into separate files when:
 After drafting, verify:
 
 - [ ] Description includes triggers ("Use when...")
+- [ ] `harnesses` is omitted for global skills or contains only the intended targets
 - [ ] SKILL.md under 100 lines
 - [ ] No time-sensitive info
 - [ ] Consistent terminology
