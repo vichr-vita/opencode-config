@@ -40,3 +40,5 @@ Apply the `unslop` skill to human-facing writing.
 - Add a blurb to the end of the PR description about what model and harness is making the changes. Use the exact model identifier from the runtime metadata, not a broad model description. Read `user.name` from the repository's local Git config first. If it is unset, use the global Git config. Use the first name from that value in the signature format: `<model> on behalf of <first name from git config> via <harness>`
 - Open a real PR, not a draft. Drafts do not get review-bot coverage.
 - Rebase onto latest `main` before opening. Stale branches conflict and waste a review round.
+
+@/Users/vitchrubasik/.codex/RTK.md
