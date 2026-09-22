@@ -16,6 +16,13 @@
       "path": "skills/engineering/research"
     },
     {
+      "name": "triage",
+      "category": "workflow",
+      "url": "https://github.com/mattpocock/skills.git",
+      "commit": "959a8e9f1edc3adbe2f7e3054bb6fbefa6696260",
+      "path": "skills/engineering/triage"
+    },
+    {
       "name": "wayfinder",
       "category": "workflow",
       "url": "https://github.com/mattpocock/skills.git",
