@@ -1,0 +1,6 @@
+interface:
+  display_name: "Set up a GitHub project"
+  short_description: "Set up dev PRs and main release automation"
+  default_prompt: "Use $setup-github-project to configure this repository with dev for PRs and main for releases."
+policy:
+  allow_implicit_invocation: false
