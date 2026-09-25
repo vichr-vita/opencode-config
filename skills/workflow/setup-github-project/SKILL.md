@@ -11,7 +11,7 @@ Run only on explicit user invocation. Do not select this skill automatically whi
 
 Inspect the current repository, its instructions, remotes, worktree, local Git identity, and authenticated GitHub account. Check whether the GitHub repository already exists before creating it. Preserve unrelated work, remote URLs, and existing history. Never force-push or recreate an existing branch to impose this layout.
 
-When the user names a reference project, inspect its actual workflows and GitHub settings. The usual local reference is `~/projects/vikunja-cli`, backed by `vichr-vita/vikunja-cli`. Use its established visibility and conventions when the request explicitly says to follow that project. Otherwise establish repository owner and visibility from the user's instructions; ask if publishing visibility is unclear.
+When the user names a reference project, inspect its README, actual workflows, and GitHub settings. The usual local reference is `~/projects/vikunja-cli`, backed by `vichr-vita/vikunja-cli`. Use its established visibility and conventions when the request explicitly says to follow that project. Otherwise establish repository owner and visibility from the user's instructions; ask if publishing visibility is unclear.
 
 ## Branch model
 
@@ -36,6 +36,18 @@ A push to `main` validates the release, chooses a version, builds release artifa
 For Go CLI or service binaries, the reference archive targets are Linux amd64/arm64, macOS amd64/arm64, and Windows amd64, with `SHA256SUMS`. Use `CGO_ENABLED=0` only if dependencies support it. For a containerized service, publish versioned and `latest` GHCR images for supported architectures, with a source-repository label. Cross-compile in a native build stage when possible. Verify package pull visibility; a public repository alone does not prove an image is publicly pullable.
 
 Check referenced action versions against current upstream tags or the working reference repository. Keep remote mutations separate from pull-request CI; never publish releases or pass publishing credentials to untrusted PR code.
+
+## README badges
+
+Add linked badges immediately below the README title as part of setup:
+
+- CI status, linked to the CI workflow. Scope it to the actual integration-branch run, such as `?branch=dev&event=push`. If CI only runs on PRs, use `?event=pull_request` instead.
+- Release workflow status, scoped to `?branch=main&event=push` and linked to that workflow. Label it Release; publishing artifacts does not mean the service was deployed.
+- Latest release version, using `https://img.shields.io/github/v/release/OWNER/REPO`, linked to `https://github.com/OWNER/REPO/releases/latest`.
+
+GitHub workflow badge URLs use `https://github.com/OWNER/REPO/actions/workflows/WORKFLOW.yml/badge.svg`. Substitute the real owner, repository, workflow filenames, branch names, and events. Verify every badge returns an image and every link points to the intended workflow or release.
+
+For an existing repository, carry README changes through a normal feature PR into `dev`, then a merge-commit promotion PR from `dev` into `main` when the user requests both branches. Do not bypass that PR workflow with direct pushes to the long-lived branches. Verify the badges exist on both branches after merging.
 
 ## Finish the setup
 
