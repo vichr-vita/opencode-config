@@ -187,7 +187,7 @@ def main() -> int:
     artifacts: list[Artifact] = [
         Artifact(codex_home / "AGENTS.md", REPO / "AGENTS.md", "global-prompt", revision),
         Artifact(opencode_home / "AGENTS.md", REPO / "AGENTS.md", "global-prompt", revision),
-        Artifact(opencode_home / "opencode.jsonc", REPO / "harnesses/opencode/opencode.jsonc", "opencode-config", revision),
+        Artifact(opencode_home / "opencode.jsonc", REPO / "harnesses/opencode/opencode.jsonc", "opencode-settings", revision),
         Artifact(opencode_home / "agents/computer-use.md", REPO / "harnesses/opencode/agents/computer-use.md", "opencode-computer-use", revision),
     ]
 
